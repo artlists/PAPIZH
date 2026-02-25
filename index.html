@@ -999,11 +999,10 @@
         <div class="image-container">
            <video
                class="gallery-image local-video"
-               src="hi.mp4?v=4"
+               src="hi.mp4?v=5"
                controls
                preload="metadata"
-               playsinline
-               poster="hi-preview.jpg?v=1">
+               playsinline>
            </video>
         </div>
         <div class="gallery-caption">
@@ -1621,27 +1620,33 @@ document.addEventListener('keydown', e => {
 });
     </script>
 </script>
+</script>
 <script>
-/* Auto-generate preview frame from first video */
+/* Auto-generate preview from video at 2s */
 
 document.addEventListener('DOMContentLoaded', () => {
     const video = document.querySelector(
         '.gallery-item[data-category="performance"] video'
     );
 
-    if (!video || video.hasAttribute('poster')) return;
+    if (!video) return;
 
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
 
-    video.addEventListener('loadeddata', () => {
+    video.addEventListener('loadedmetadata', () => {
+        // Jump to 2 seconds (usually nicer frame)
+        video.currentTime = Math.min(2, video.duration / 2);
+    });
+
+    video.addEventListener('seeked', () => {
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
 
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
         try {
-            const dataURL = canvas.toDataURL('image/jpeg', 0.85);
+            const dataURL = canvas.toDataURL('image/jpeg', 0.9);
             video.setAttribute('poster', dataURL);
         } catch (e) {
             console.warn('Poster generation failed', e);
